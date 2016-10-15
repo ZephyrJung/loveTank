@@ -1,6 +1,14 @@
 function love.load()	
 	SPEED = 250
-	StartPos = {x=250, y=250, width=50, height=50}	--The starting point that the bullets are fired from, acts like the shooter.
+	bodyX=250
+	bodyY=250 
+	bodyW=40 
+	bodyH=50
+	centerX=bodyX+bodyW/2
+	centerY=bodyY+bodyH/2
+	Tank={headR=15,headS=6,fireW=5,fireH=40} --headR:坦克脑袋半径，headS:坦克脑袋边数
+	fireX=centerX-Tank.fireW/2
+	fireY=centerY-Tank.fireH-math.cos(math.pi/6)*Tank.headR
 	bullets={}										--The table that contains all bullets.
 end
 
@@ -17,15 +25,19 @@ function love.draw()
 	love.graphics.setColor(255, 255, 255)
 	
 	love.graphics.print("Left click to fire towards the mouse.", 50, 50)
-	love.graphics.rectangle("line", StartPos.x, StartPos.y, StartPos.width, StartPos.height)
+	love.graphics.rectangle("line", bodyX, bodyY, bodyW, bodyH)
+	love.graphics.circle("line", centerX, centerY, Tank.headR, Tank.headS)
+	love.graphics.rectangle("line",fireX,fireY,Tank.fireW,Tank.fireH)
+
+	love.graphics.draw(love.graphics.circle("line", 50, 50, 10, 10),x, y,angle)
 end
 
 function love.update(dt)
 	
 	if love.mouse.isDown(1) then
 		--Sets the starting position of the bullet, this code makes the bullets start in the middle of the player.
-		local startX = StartPos.x + StartPos.width / 2
-		local startY = StartPos.y + StartPos.height / 2
+		local startX = fireX+Tank.fireW/2
+		local startY = fireY
 		
 		local targetX, targetY = love.mouse.getPosition()
 	  
