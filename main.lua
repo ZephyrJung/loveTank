@@ -6,7 +6,7 @@ function love.load()
 	bodyH=50
 	centerX=bodyX+bodyW/2
 	centerY=bodyY+bodyH/2
-	Tank={angle=0,headR=15,headS=6,fireW=5,fireH=40,speed=50} --headR:坦克脑袋半径，headS:坦克脑袋边数
+	Tank={bodyA=0,headA=0,headR=15,headS=6,fireW=5,fireH=40,speed=50} --headR:坦克脑袋半径，headS:坦克脑袋边数
 	fireX=centerX-Tank.fireW/2
 	fireY=centerY-Tank.fireH-math.cos(math.pi/6)*Tank.headR
 	bullets={}										--The table that contains all bullets.
@@ -23,21 +23,23 @@ function love.draw()
 	
 
 	love.graphics.push();
-	roateTank(centerX,centerY);
-	love.graphics.push();
-	love.graphics.pop();
+	roateTank(centerX,centerY,Tank.bodyA);
+	love.graphics.push()
+	love.graphics.pop()
 	--Sets the color to white and draws the "player" and writes instructions.
 	love.graphics.setColor(255, 255, 255)	
 	love.graphics.rectangle("line", bodyX, bodyY, bodyW, bodyH)
-	love.graphics.pop();
+	love.graphics.pop()
 	-- resetAngle();
+	roateTank(centerX,centerY,Tank.headA)
 	love.graphics.circle("line", centerX, centerY, Tank.headR, Tank.headS)
 	love.graphics.rectangle("line",fireX,fireY,Tank.fireW,Tank.fireH)
+
 end
 
-function roateTank(posX,posY)
+function roateTank(posX,posY,angle)
 	love.graphics.translate(posX, posY)--设定初始位置
-	love.graphics.rotate(Tank.angle)--从该位置进行旋转
+	love.graphics.rotate(angle)--从该位置进行旋转
 	love.graphics.translate(-posX, -posY)--返回初始位置
 end
 
@@ -67,19 +69,21 @@ end
 
 function keyboardLinstener(dt)
 	if love.keyboard.isDown("a") then
-		Tank.angle = Tank.angle - dt * math.pi/2
-		Tank.angle = Tank.angle % (2*math.pi)
+		Tank.bodyA = Tank.bodyA - dt * math.pi/2
+		Tank.bodyA = Tank.bodyA % (2*math.pi)
 	elseif love.keyboard.isDown("d") then
-		Tank.angle = Tank.angle + dt * math.pi/2
-		Tank.angle = Tank.angle % (2*math.pi)
+		Tank.bodyA = Tank.bodyA + dt * math.pi/2
+		Tank.bodyA = Tank.bodyA % (2*math.pi)
 	elseif love.keyboard.isDown("w") then
 		moveTank(-1,dt)
 	elseif love.keyboard.isDown("s") then
 		moveTank(1,dt)
 	elseif love.keyboard.isDown("q") then
-		-- roateTank
+		Tank.headA = Tank.headA - dt * math.pi/2
+		Tank.headA = Tank.headA % (2*math.pi)
 	elseif love.keyboard.isDown("e") then
-		-- roateTank
+		Tank.headA = Tank.headA + dt * math.pi/2
+		Tank.headA = Tank.headA % (2*math.pi)
 	elseif love.keyboard.isDown("j") then
 		tankFire()
 	end
