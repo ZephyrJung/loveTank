@@ -6,13 +6,16 @@ function love.load()
 	bodyH=50
 	centerX=bodyX+bodyW/2
 	centerY=bodyY+bodyH/2
-	Tank={bodyA=0,headA=0,headR=15,headS=6,fireW=5,fireH=40,speed=50} --headR:坦克脑袋半径，headS:坦克脑袋边数
+	Tank={bodyA=0,headA=0,headR=15,headS=6,fireW=5,fireH=40,speed=50,bullets=10} --headR:坦克脑袋半径，headS:坦克脑袋边数
 	fireX=centerX-Tank.fireW/2
 	fireY=centerY-Tank.fireH-math.cos(math.pi/6)*Tank.headR
 	bullets={}										--The table that contains all bullets.
 end
 
 function love.draw()
+	--输出子弹个数
+	love.graphics.print("BULLETS:> "..Tank.bullets,500,200)
+
 	--Sets the color to red and draws the "bullets".
 	love.graphics.setColor(255, 0, 0)
 	
@@ -63,8 +66,11 @@ function tankFire()
 	local angle = math.atan2((targetY - startY), (targetX - startX))
 		
 	--Creates a new bullet and appends it to the table we created earlier.
-	newbullet={x=startX,y=startY,angle=angle}
-	table.insert(bullets,newbullet)
+	if(Tank.bullets>0) then
+		newbullet={x=startX,y=startY,angle=angle}
+		table.insert(bullets,newbullet)
+		Tank.bullets=Tank.bullets-1
+	end
 end
 
 function keyboardLinstener(dt)
@@ -84,16 +90,19 @@ function keyboardLinstener(dt)
 	elseif love.keyboard.isDown("e") then
 		Tank.headA = Tank.headA + dt * math.pi/2
 		Tank.headA = Tank.headA % (2*math.pi)
-	elseif love.keyboard.isDown("j") then
-		tankFire()
 	end
+end
+
+function love.keyreleased(key)
+   if key == "j" then
+      	tankFire()
+   elseif key == "k" then
+   		Tank.bullets=10
+   	end
 end
 
 function love.update(dt)
 	keyboardLinstener(dt)
-	-- love.timer.sleep(.01)
-	-- Tank.angle = Tank.angle + dt * math.pi/2
-	-- Tank.angle = Tank.angle % (2*math.pi)
 	for i,v in pairs(bullets) do
 		local Dx = speed * math.cos(v.angle)		--Physics: deltaX is the change in the x direction.
 		local Dy = speed * math.sin(v.angle)
