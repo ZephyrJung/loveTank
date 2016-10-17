@@ -15,20 +15,25 @@ function love.load()
 		fireW=5,	--炮管宽度
 		fireH=40,	--炮管长度
 		speed=50,	--坦克移动速度
-		bullets=10,	--坦克子弹个数
-		maxbs=10	--最大子弹个数
+		bullets=10000,	--坦克子弹个数
+		maxbs=10000	--最大子弹个数
 	} --headR:坦克脑袋半径，headS:坦克脑袋边数
+	Target={
+		50,
+		50,
+		100,
+		50,
+		90,
+		60,
+		60,
+		60
+	}
 	fireX=centerX-Tank.fireW/2
 	fireY=centerY-Tank.fireH-math.cos(math.pi/6)*Tank.headR
 	bullets={}										--The table that contains all bullets.
 end
 
 function love.draw()
-
-	for i,v in pairs(bullets) do
-		love.graphics.circle("line", v.x, v.y, 4,10)
-	end
-
 	--输出子弹个数
 	love.graphics.print("BULLETS:> "..Tank.bullets,500,200)
 	love.graphics.print("Tank body Angle:> "..Tank.bodyA,500,250)
@@ -39,44 +44,35 @@ function love.draw()
 	--Sets the color to red and draws the "bullets".
 	love.graphics.setColor(255, 255, 255)
 	
-	
-
-	love.graphics.push();
-	roateTank(centerX,centerY,Tank.bodyA);
-	love.graphics.push()
-	love.graphics.pop()
+	--画坦克躯干
+	love.graphics.origin()
+	rotateGraph(centerX,centerY,Tank.bodyA);
 	love.graphics.rectangle("line", bodyX, bodyY, bodyW, bodyH)
-	love.graphics.pop()
 
-	-- roateTank(centerX,centerY,Tank.headA)
-	-- love.graphics.push()
+	--画坦克头部
+	love.graphics.origin()
+	rotateGraph(centerX,centerY,Tank.headA)
 	love.graphics.circle("line", centerX, centerY, Tank.headR, Tank.headS)
 	love.graphics.rectangle("line",fireX,fireY,Tank.fireW,Tank.fireH)
-	-- love.graphics.rectangle("fill",fireX+Tank.fireW/2 +Tank.fireH*math.sin(Tank.headA),
-		-- fireY+Tank.fireH -Tank.fireH*math.cos(Tank.headA),Tank.fireW,Tank.fireH)
-	-- love.graphics.pop()
-	-- giving the coordinates directly
-love.graphics.polygon('line', 300, 100, 200, 100, 150, 200,600,300)
- 
--- defining a table with the coordinates
--- this table could be built incrementally too
-local vertices = {100, 100, 200, 100, 150, 200}
- 
--- passing the table to the function as a second argument
-love.graphics.polygon('fill', vertices)
 
+	--画子弹
+	for i,v in pairs(bullets) do
+		love.graphics.origin()
+		-- rotateBuilet(v.angle)
+		rotateGraph(v.cx,v.cy,v.angle)
+		love.graphics.circle("line", v.x, v.y, 4,10)
+	end
+
+	--画靶子
+	love.graphics.origin()
+	love.graphics.polygon('fill', Target)
+	love.graphics.polygon('line',100,100,120,158,137,49,143,166,180,122,163,152)
 end
 
-function roateTank(posX,posY,angle)
+function rotateGraph(posX,posY,angle)
 	love.graphics.translate(posX, posY)--设定初始位置
 	love.graphics.rotate(angle)--从该位置进行旋转
 	love.graphics.translate(-posX, -posY)--返回初始位置
-end
-
-function rotateBuilet(angle)
-	love.graphics.translate(centerX,centerY)
-	love.graphics.rotate(angle)
-	love.graphics.translate(-centerX,-centerY)
 end
 
 function moveTank(dir,dt)
@@ -91,15 +87,12 @@ function moveTank(dir,dt)
 end
 
 function tankFire()
-	local targetX = fireX+Tank.fireW/2 +Tank.fireH*math.sin(Tank.headA)
-	local targetY = fireY+Tank.fireH -Tank.fireH*math.cos(Tank.headA)
+	local targetX = fireX+Tank.fireW/2 
+	local targetY = fireY
 	  
-	--Basic maths and physics, calculates the angle so the code can calculate deltaX and deltaY later.
-	local angle =  math.atan2((targetY - centerY), (targetX - centerX))
-		
 	--Creates a new bullet and appends it to the table we created earlier.
 	if(Tank.bullets>0) then
-		newbullet={x=targetX,y=targetY,angle=angle}
+		newbullet={x=targetX,y=targetY,angle=Tank.headA,cx=centerX,cy=centerY}
 		table.insert(bullets,newbullet)
 		Tank.bullets=Tank.bullets-1
 	end
@@ -141,16 +134,27 @@ end
 function love.update(dt)
 	keyboardLinstener(dt)
 	for i,v in pairs(bullets) do
-		local Dx = speed * math.cos(v.angle)		--Physics: deltaX is the change in the x direction.
-		local Dy = speed * math.sin(v.angle)
+		local shootAngle=math.atan2((fireY - centerY), (fireX+Tank.fireW/2 - centerX))
+		local Dx = speed* math.cos(shootAngle) 		--Physics: deltaX is the change in the x direction.
+		local Dy = speed* math.sin(shootAngle)
 		v.x = v.x + (Dx * dt)
-		v.y = v.y + (Dy * dt)	
+		v.y = v.y + (Dy * dt)
 		--以下这段代码决定了射程
-		if v.x > love.graphics.getWidth() or
-		   v.y > love.graphics.getHeight() or
+		if v.x > 5000 or
+		   v.y > 5000 or
 		   v.x < 0 or
 		   v.y < 0 then
 			table.remove(bullets,i)
 		end
+	end
+	Target[1]=Target[1]+speed*dt;
+	Target[3]=Target[3]+speed*dt;
+	Target[5]=Target[5]+speed*dt;
+	Target[7]=Target[7]+speed*dt;
+	if Target[1]>love.graphics.getWidth() then
+		Target[1]=50
+		Target[3]=100
+		Target[5]=90
+		Target[7]=60
 	end
 end
