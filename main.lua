@@ -16,17 +16,14 @@ function love.load()
 		fireH=40,	--炮管长度
 		speed=50,	--坦克移动速度
 		bullets=10000,	--坦克子弹个数
-		maxbs=10000	--最大子弹个数
+		maxbs=10000,	--最大子弹个数
+		maxshoot=500
 	} --headR:坦克脑袋半径，headS:坦克脑袋边数
 	Target={
-		50,
-		50,
-		100,
-		50,
-		90,
-		60,
-		60,
-		60
+		50,50,
+		100,50,
+		90,60,
+		60,60
 	}
 	fireX=centerX-Tank.fireW/2
 	fireY=centerY-Tank.fireH-math.cos(math.pi/6)*Tank.headR
@@ -139,11 +136,9 @@ function love.update(dt)
 		local Dy = speed* math.sin(shootAngle)
 		v.x = v.x + (Dx * dt)
 		v.y = v.y + (Dy * dt)
+		local length=math.sqrt((v.y-v.cy)^2+(v.x-v.cx)^2)
 		--以下这段代码决定了射程
-		if v.x > 5000 or
-		   v.y > 5000 or
-		   v.x < 0 or
-		   v.y < 0 then
+		if length>Tank.maxshoot then
 			table.remove(bullets,i)
 		end
 	end
