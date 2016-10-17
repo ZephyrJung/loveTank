@@ -1,4 +1,15 @@
-function love.load()	
+function love.load()
+	Tank={
+		speed=50,	--坦克移动速度
+		bodyW=40,	--坦克身体宽度
+		bodyH=50,	--坦克身体长度
+		headR=15,	--坦克头部半径
+		headS=6,	--坦克头部边数
+		fireW=5,	--炮管宽度
+		fireH=40,	--炮管长度
+		bullets=10,	--子弹个数
+		maxbs=10	--最大子弹数目
+	}	
 	speed = 100
 	bodyX=250
 	bodyY=250 
@@ -6,18 +17,6 @@ function love.load()
 	bodyH=50
 	centerX=bodyX+bodyW/2
 	centerY=bodyY+bodyH/2
-	Tank={
-		bodyA=0,	--坦克躯干角度
-		headA=0,	--坦克头部角度
-		bulletA=0,	--子弹发射角度
-		headR=15,	--坦克头部半径
-		headS=6,	--坦克头部边数
-		fireW=5,	--炮管宽度
-		fireH=40,	--炮管长度
-		speed=50,	--坦克移动速度
-		bullets=10,	--坦克子弹个数
-		maxbs=10	--最大子弹个数
-	} --headR:坦克脑袋半径，headS:坦克脑袋边数
 	fireX=centerX-Tank.fireW/2
 	fireY=centerY-Tank.fireH-math.cos(math.pi/6)*Tank.headR
 	bullets={}										--The table that contains all bullets.
