@@ -22,12 +22,13 @@ function love.load()
 	Target={
 		50,50,
 		100,50,
-		90,60,
-		60,60
+		100,60,
+		50,60
 	}
 	fireX=centerX-Tank.fireW/2
 	fireY=centerY-Tank.fireH-math.cos(math.pi/6)*Tank.headR
 	bullets={}										--The table that contains all bullets.
+	hitFlag=false;
 end
 
 function love.draw()
@@ -63,7 +64,7 @@ function love.draw()
 	--画靶子
 	love.graphics.origin()
 	love.graphics.polygon('fill', Target)
-	love.graphics.polygon('line',100,100,120,158,137,49,143,166,180,122,163,152)
+	-- lorve.graphics.polygon('line',100,100,120,158,137,49,143,166,180,122,163,152)
 end
 
 function rotateGraph(posX,posY,angle)
@@ -84,6 +85,7 @@ function moveTank(dir,dt)
 end
 
 function tankFire()
+	
 	local targetX = fireX+Tank.fireW/2 
 	local targetY = fireY
 	  
@@ -120,11 +122,36 @@ function keyboardLinstener(dt)
 	end
 end
 
+function checkHit()
+	-- for i,v in pairs(bullets) do
+	-- 	if v.x<=Target[5] and v.x>=Target[7]
+	-- 		and v.y+4<=60 and v.y+4>=50 then
+	-- 		Target[1]=0
+	-- 		Target[2]=0
+	-- 		Target[3]=0
+	-- 		Target[4]=0
+	-- 		Target[5]=0
+	-- 		Target[6]=0
+	-- 		Target[7]=0
+	-- 		Target[8]=0
+	-- 		hitFlag=true
+	-- 	end
+	-- end
+end
+
 function love.keyreleased(key)
    if key == "j" then
       	tankFire()
    elseif key == "k" then
    		Tank.bullets=Tank.maxbs
+   	elseif key=="r" then 
+   		Target={
+			50,50,
+			100,50,
+			100,60,
+			50,60
+		}
+		hitFlag=false
    	end
 end
 
@@ -141,15 +168,18 @@ function love.update(dt)
 		if length>Tank.maxshoot then
 			table.remove(bullets,i)
 		end
+		checkHit()
 	end
-	Target[1]=Target[1]+speed*dt;
-	Target[3]=Target[3]+speed*dt;
-	Target[5]=Target[5]+speed*dt;
-	Target[7]=Target[7]+speed*dt;
-	if Target[1]>love.graphics.getWidth() then
-		Target[1]=50
-		Target[3]=100
-		Target[5]=90
-		Target[7]=60
+	if hitFlag~=true then
+		Target[1]=Target[1]+speed*dt;
+		Target[3]=Target[3]+speed*dt;
+		Target[5]=Target[5]+speed*dt;
+		Target[7]=Target[7]+speed*dt;
+		if Target[1]>love.graphics.getWidth() then
+			Target[1]=50
+			Target[3]=100
+			Target[5]=100
+			Target[7]=50
+		end
 	end
 end
