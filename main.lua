@@ -17,7 +17,8 @@ function love.load()
 		speed=50,	--坦克移动速度
 		bullets=10000,	--坦克子弹个数
 		maxbs=10000,	--最大子弹个数
-		maxshoot=500
+		maxshoot=500,
+		bulletSize=4
 	} --headR:坦克脑袋半径，headS:坦克脑袋边数
 	Target={
 		50,50,
@@ -58,7 +59,7 @@ function love.draw()
 		love.graphics.origin()
 		-- rotateBuilet(v.angle)
 		rotateGraph(v.cx,v.cy,v.angle)
-		love.graphics.circle("line", v.x, v.y, 4,10)
+		love.graphics.circle("line", v.x, v.y,Tank.bulletSize,10)
 	end
 
 	--画靶子
@@ -123,20 +124,21 @@ function keyboardLinstener(dt)
 end
 
 function checkHit()
-	-- for i,v in pairs(bullets) do
-	-- 	if v.x<=Target[5] and v.x>=Target[7]
-	-- 		and v.y+4<=60 and v.y+4>=50 then
-	-- 		Target[1]=0
-	-- 		Target[2]=0
-	-- 		Target[3]=0
-	-- 		Target[4]=0
-	-- 		Target[5]=0
-	-- 		Target[6]=0
-	-- 		Target[7]=0
-	-- 		Target[8]=0
-	-- 		hitFlag=true
-	-- 	end
-	-- end
+	for i,v in pairs(bullets) do
+		if v.y>=50 and v.y<=60 then
+			if v.x>=Target[1] and v.x<=Target[3] then
+				Target[1]=0		
+				Target[2]=0
+				Target[3]=0
+				Target[4]=0
+				Target[5]=0
+				Target[6]=0
+				Target[7]=0
+				Target[8]=0
+				hitFlag=true
+			end
+		end
+	end
 end
 
 function love.keyreleased(key)
