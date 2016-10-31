@@ -66,6 +66,8 @@ function love.draw()
 	love.graphics.origin()
 	love.graphics.polygon('fill', Target)
 	-- lorve.graphics.polygon('line',100,100,120,158,137,49,143,166,180,122,163,152)
+
+	love.graphics.circle("line", 300, 300, 30, 4)
 end
 
 function rotateGraph(posX,posY,angle)
@@ -100,12 +102,22 @@ end
 
 function keyboardLinstener(dt)
 	if love.keyboard.isDown("a") then
-		Tank.bodyA = Tank.bodyA - dt * math.pi/2
-		Tank.bodyA = Tank.bodyA % (2*math.pi)
+		if love.keyboard.isDown("w") then
+			Tank.bodyA = Tank.bodyA - dt * math.pi/2
+			Tank.bodyA = Tank.bodyA % (2*math.pi)
+		elseif love.keyboard.isDown("s") then
+			Tank.bodyA = Tank.bodyA + dt * math.pi/2
+			Tank.bodyA = Tank.bodyA % (2*math.pi)
+		end
 	end
 	if love.keyboard.isDown("d") then
-		Tank.bodyA = Tank.bodyA + dt * math.pi/2
-		Tank.bodyA = Tank.bodyA % (2*math.pi)
+		if love.keyboard.isDown("w") then
+			Tank.bodyA = Tank.bodyA + dt * math.pi/2
+			Tank.bodyA = Tank.bodyA % (2*math.pi)
+		elseif love.keyboard.isDown("s") then
+			Tank.bodyA = Tank.bodyA - dt * math.pi/2
+			Tank.bodyA = Tank.bodyA % (2*math.pi)
+		end
 	end
 	if love.keyboard.isDown("w") then
 		moveTank(-1,dt)
