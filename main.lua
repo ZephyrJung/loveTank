@@ -1,3 +1,4 @@
+--灰机
 function love.load()	
 	speed = 100
 	bodyX=250
