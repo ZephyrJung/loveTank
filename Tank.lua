@@ -11,54 +11,59 @@
 --]]
 Tank = {}
 
-Tank.bodyX=250
-Tank.bodyY=250 
-Tank.bodyW=40 
-Tank.bodyH=50
-Tank.centerX=Tank.bodyX+Tank.bodyW/2
-Tank.centerY=Tank.bodyY+Tank.bodyH/2
+Tank.body={}
+Tank.body.x=250
+Tank.body.y=250
+Tank.body.w=40
+Tank.body.h=50
+Tank.body.angle=0	--坦克躯干角度
+Tank.center={}
+Tank.center.x=Tank.body.x+Tank.body.w/2
+Tank.center.y=Tank.body.y+Tank.body.h/2
 
+Tank.head={}
+Tank.head.angle=0	--坦克头部角度
+Tank.head.radius=15	--坦克头部半径
+Tank.head.edges=6	--坦克头部边数
 
-Tank.bodyA=0	--坦克躯干角度
-Tank.headA=0	--坦克头部角度
 Tank.bulletA=0	--子弹发射角度
-Tank.headR=15	--坦克头部半径
-Tank.headS=6	--坦克头部边数
-Tank.fireW=5	--炮管宽度
-Tank.fireH=40	--炮管长度
+
+Tank.fire={}
+Tank.fire.w=5	--炮管宽度
+Tank.fire.h=40	--炮管长度
+Tank.fire.x=Tank.center.x-Tank.fire.w/2
+Tank.fire.y=Tank.center.y-Tank.fire.h-math.cos(math.pi/6)*Tank.head.radius
 Tank.speed=50	--坦克移动速度
 Tank.bulletsCount=10000	--坦克子弹个数
 Tank.maxbs=10000	--最大子弹个数
 Tank.maxshoot=500
 Tank.bulletSize=4
 
-Tank.fireX=Tank.centerX-Tank.fireW/2
-Tank.fireY=Tank.centerY-Tank.fireH-math.cos(math.pi/6)*Tank.headR
- --headR:坦克脑袋半径，headS:坦克脑袋边数
+ --head.radius:head.edges:坦克脑袋边数
 
 Tank.bullets={}	--The table that contains all bullets.
 
 function Tank.draw()
 	--输出子弹个数
 	love.graphics.print("BULLETS:> "..Tank.bulletsCount,500,200)
-	love.graphics.print("Tank body Angle:> "..Tank.bodyA,500,250)
-	love.graphics.print("Tank head Agnle:> "..Tank.headA,500,300)
-	love.graphics.print("Tank.fireX: "..Tank.fireX.." Tank.fireY: "..Tank.fireY,500,350)
-	love.graphics.print("targetX: "..Tank.fireX+Tank.fireW/2 +Tank.fireH*math.sin(Tank.headA),500,400)
-	love.graphics.print("targetY: "..Tank.fireY+Tank.fireH -Tank.fireH*math.cos(Tank.headA),500,450)
+	love.graphics.print("Tank body Angle:> "..Tank.body.angle,500,250)
+	love.graphics.print("Tank head Agnle:> "..Tank.head.angle,500,300)
+	love.graphics.print("Tank.fire.x: "..Tank.fire.x.." Tank.fire.y: "..Tank.fire.y,500,350)
+	love.graphics.print("targetX: "..Tank.fire.x+Tank.fire.w/2 +Tank.fire.h*math.sin(Tank.head.angle),500,400)
+	love.graphics.print("targetY: "..Tank.fire.y+Tank.fire.h -Tank.fire.h*math.cos(Tank.head.angle),500,450)
 	--Sets the color to red and draws the "bullets".
 	love.graphics.setColor(255, 255, 255)
 	
 	--画坦克躯干
 	love.graphics.origin()
-	rotateGraph(Tank.centerX,Tank.centerY,Tank.bodyA);
-	love.graphics.rectangle("line", Tank.bodyX, Tank.bodyY, Tank.bodyW, Tank.bodyH)
+	rotateGraph(Tank.center.x,Tank.center.y,Tank.body.angle);
+	love.graphics.rectangle("line", Tank.body.x, Tank.body.y, Tank.body.w, Tank.body.h)
 
 	--画坦克头部
 	love.graphics.origin()
-	rotateGraph(Tank.centerX,Tank.centerY,Tank.headA)
-	love.graphics.circle("line", Tank.centerX, Tank.centerY, Tank.headR, Tank.headS)
-	love.graphics.rectangle("line",Tank.fireX,Tank.fireY,Tank.fireW,Tank.fireH)
+	rotateGraph(Tank.center.x,Tank.center.y,Tank.head.angle)
+	love.graphics.circle("line", Tank.center.x, Tank.center.y, Tank.head.radius, Tank.head.edges)
+	love.graphics.rectangle("line",Tank.fire.x,Tank.fire.y,Tank.fire.w,Tank.fire.h)
 
 	--画子弹
 	for i,v in pairs(Tank.bullets) do
@@ -70,24 +75,24 @@ function Tank.draw()
 end
 
 function Tank.move(dir,dt)
-	Tank.bodyY=Tank.bodyY+dir*dt*Tank.speed*math.cos(Tank.bodyA)
-	Tank.centerY=Tank.centerY+dir*dt*Tank.speed*math.cos(Tank.bodyA)
-	Tank.fireY=Tank.fireY+dir*dt*Tank.speed*math.cos(Tank.bodyA)
-	if Tank.bodyA~=0 then
-		Tank.bodyX=Tank.bodyX-dir*dt*Tank.speed*math.sin(Tank.bodyA)
-		Tank.centerX=Tank.centerX-dir*dt*Tank.speed*math.sin(Tank.bodyA)
-		Tank.fireX=Tank.fireX-dir*dt*Tank.speed*math.sin(Tank.bodyA)
+	Tank.body.y=Tank.body.y+dir*dt*Tank.speed*math.cos(Tank.body.angle)
+	Tank.center.y=Tank.center.y+dir*dt*Tank.speed*math.cos(Tank.body.angle)
+	Tank.fire.y=Tank.fire.y+dir*dt*Tank.speed*math.cos(Tank.body.angle)
+	if Tank.body.angle~=0 then
+		Tank.body.x=Tank.body.x-dir*dt*Tank.speed*math.sin(Tank.body.angle)
+		Tank.center.x=Tank.center.x-dir*dt*Tank.speed*math.sin(Tank.body.angle)
+		Tank.fire.x=Tank.fire.x-dir*dt*Tank.speed*math.sin(Tank.body.angle)
 	end
 end
 
-function Tank.fire()
+function Tank.makeFire()
 	
-	local targetX = Tank.fireX+Tank.fireW/2 
-	local targetY = Tank.fireY
+	local targetX = Tank.fire.x+Tank.fire.w/2 
+	local targetY = Tank.fire.y
 	  
 	--Creates a new bullet and appends it to the table we created earlier.
 	if(Tank.bulletsCount>0) then
-		newbullet={x=targetX,y=targetY,angle=Tank.headA,cx=Tank.centerX,cy=Tank.centerY}
+		newbullet={x=targetX,y=targetY,angle=Tank.head.angle,cx=Tank.center.x,cy=Tank.center.y}
 		table.insert(Tank.bullets,newbullet)
 		Tank.bulletsCount=Tank.bulletsCount-1
 	end
