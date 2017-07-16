@@ -9,6 +9,7 @@
 	炮弹半径（边数定为10成圆形)
 	炮弹个数
 --]]
+HC = require 'HC'
 Tank = {}
 
 Tank.body={}
@@ -44,13 +45,7 @@ Tank.bulletSize=4
 Tank.bullets={}	--The table that contains all bullets.
 
 function Tank.draw()
-	--输出子弹个数
-	love.graphics.print("BULLETS:> "..Tank.bulletsCount,500,200)
-	love.graphics.print("Tank body Angle:> "..Tank.body.angle,500,250)
-	love.graphics.print("Tank head Agnle:> "..Tank.head.angle,500,300)
-	love.graphics.print("Tank.fire.x: "..Tank.fire.x.." Tank.fire.y: "..Tank.fire.y,500,350)
-	love.graphics.print("targetX: "..Tank.fire.x+Tank.fire.w/2 +Tank.fire.h*math.sin(Tank.head.angle),500,400)
-	love.graphics.print("targetY: "..Tank.fire.y+Tank.fire.h -Tank.fire.h*math.cos(Tank.head.angle),500,450)
+	
 	--Sets the color to red and draws the "bullets".
 	love.graphics.setColor(255, 255, 255)
 	

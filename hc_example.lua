@@ -2,12 +2,10 @@ HC = require 'HC'
 
 -- array to hold collision messages
 local text = {}
-local x=100
-local y=100
+
 function love.load()
     -- add a rectangle to the scene
-
-    rect = HC.rectangle(x,y,200,20)
+    rect = HC.rectangle(200,400,400,20)
 
     -- add a circle to the scene
     mouse = HC.circle(400,300,20)
@@ -15,49 +13,21 @@ function love.load()
 end
 
 function love.update(dt)
-    keyboardListener(dt)
     -- move circle to mouse position
     mouse:moveTo(love.mouse.getPosition())
 
     -- rotate rectangle
-    -- rect:rotate(-dt)
+    rect:rotate(dt)
 
     -- check for collisions
     for shape, delta in pairs(HC.collisions(mouse)) do
         rect:rotate(-dt) -- stop the rect rotation
+        text[#text+1] = string.format("Colliding. Separating vector = (%s,%s)",
+                                      delta.x, delta.y)
     end
-
 
     while #text > 40 do
         table.remove(text, 1)
-    end
-    text[#text+1] = rect:rotation()..","..x..","..y
-end
-
-function keyboardListener(dt)
-    if love.keyboard.isDown("q") then
-        y = y + 10*dt
-        rect:rotate(dt,x,y)
-        -- rect:setRotation(dt,200,400)
-    end
-    if love.keyboard.isDown("e") then
-        y = y+dt*50
-        -- angle = rect:rotation() % (2*math.pi)
-        rect:moveTo(x,y)
-
-    end
-end
-
-function love.keyreleased(key)
-   if key == "h" then
-        collider = HC.new(150) -- create separate world
-        -- method calls with colon syntax
-        ball = collider:circle(100,100,20)
-        rect = collider:rectangle(110,90,20,100)
-
-        for shape, delta in pairs(collider:collisions(ball)) do
-            shape:move(delta.x, delta.y)
-        end
     end
 end
 
@@ -72,5 +42,4 @@ function love.draw()
     love.graphics.setColor(255,255,255)
     rect:draw('fill')
     mouse:draw('fill')
-    ball:draw('fill')
 end

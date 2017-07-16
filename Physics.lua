@@ -1,6 +1,6 @@
 Physics = {}
 function Physics.checkTBNT(tankBody,normalTarget)
-	--已知两个矩形的每个边的方程，求两个多边形是否有交点
+	
 end
 
 function Physics.checkBNT(bullet,normalTarget)
