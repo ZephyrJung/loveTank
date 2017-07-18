@@ -2,7 +2,7 @@ HC = require 'HC'
 
 -- array to hold collision messages
 local text = {}
-local x=100
+local x=300
 local y=100
 function love.load()
     -- add a rectangle to the scene
@@ -33,33 +33,18 @@ function love.update(dt)
     end
     text[#text+1] = rect:rotation()..","..x..","..y
 
-    collider = HC.new(150) -- create separate world
-        -- method calls with colon syntax
-        ball = collider:circle(100,100,20)
-        rect = collider:rectangle(110,90,20,100)
-
-        for shape, delta in pairs(collider:collisions(ball)) do
-            shape:move(delta.x, delta.y)
-        end
 end
 
 function keyboardListener(dt)
     if love.keyboard.isDown("q") then
-        y = y + 10*dt
-        rect:rotate(dt,x,y)
+        rect:rotate(dt,x,y+10)
         -- rect:setRotation(dt,200,400)
     end
     if love.keyboard.isDown("e") then
-        y = y+dt*50
         -- angle = rect:rotation() % (2*math.pi)
-        rect:moveTo(x,y)
+        y = y + dt*50
+        rect:move(0,dt*50)
 
-    end
-end
-
-function love.keyreleased(key)
-   if key == "h" then
-        
     end
 end
 
