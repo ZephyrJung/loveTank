@@ -1,3 +1,4 @@
+HC = require 'HC'
 Physics = {}
 function Physics.checkTBNT(tankBody,normalTarget)
 	

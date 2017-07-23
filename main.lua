@@ -1,65 +1,110 @@
-HC = require 'HC'
--- test for git
--- array to hold collision messages
-local text = {}
-local x=300
-local y=100
-function love.load()
-    -- add a rectangle to the scene
 
-    rect = HC.rectangle(x,y,200,20)
-    ball = nil
-    -- add a circle to the scene
-    mouse = HC.circle(400,300,20)
-    mouse:moveTo(love.mouse.getPosition())
-end
-
-function love.update(dt)
-    keyboardListener(dt)
-    -- move circle to mouse position
-    mouse:moveTo(love.mouse.getPosition())
-
-    -- rotate rectangle
-    -- rect:rotate(-dt)
-
-    -- check for collisions
-    for shape, delta in pairs(HC.collisions(mouse)) do
-        rect:rotate(-dt) -- stop the rect rotation
-    end
-
-
-    while #text > 40 do
-        table.remove(text, 1)
-    end
-    text[#text+1] = rect:rotation()..","..x..","..y
-
-end
-
-function keyboardListener(dt)
-    if love.keyboard.isDown("q") then
-        rect:rotate(dt,x,y+10)
-        -- rect:setRotation(dt,200,400)
-    end
-    if love.keyboard.isDown("e") then
-        -- angle = rect:rotation() % (2*math.pi)
-        y = y + dt*50
-        rect:move(0,dt*50)
-
-    end
+require "Tank"
+require "Target"
+--灰机
+function love.load()    
+    speed = 100
+    hitFlag=false;
 end
 
 function love.draw()
-    -- print messages
-    for i = 1,#text do
-        love.graphics.setColor(255,255,255, 255 - (i-1) * 6)
-        love.graphics.print(text[#text - (i-1)], 10, i * 15)
-    end
+    Tank.draw()
 
-    -- shapes can be drawn to the screen
-    love.graphics.setColor(255,255,255)
-    rect:draw('fill')
-    mouse:draw('fill')
-    if ball ~= nil then
-        ball:draw('fill')
+    --画靶子
+    love.graphics.origin()
+    Target.draw(Target.normal)
+    love.graphics.circle("line", 300, 300, 30, 4)
+end
+
+function rotateGraph(posX,posY,angle)
+    love.graphics.translate(posX, posY)--设定初始位置
+    love.graphics.rotate(angle)--从该位置进行旋转
+    love.graphics.translate(-posX, -posY)--返回初始位置
+end
+
+function keyboardLinstener(dt)
+    if love.keyboard.isDown("a") then
+        if love.keyboard.isDown("w") then
+            Tank.body.angle = Tank.body.angle - dt * math.pi/2
+            Tank.body.angle = Tank.body.angle % (2*math.pi)
+        elseif love.keyboard.isDown("s") then
+            Tank.body.angle = Tank.body.angle + dt * math.pi/2
+            Tank.body.angle = Tank.body.angle % (2*math.pi)
+        end
+    end
+    if love.keyboard.isDown("d") then
+        if love.keyboard.isDown("w") then
+            Tank.body.angle = Tank.body.angle + dt * math.pi/2
+            Tank.body.angle = Tank.body.angle % (2*math.pi)
+        elseif love.keyboard.isDown("s") then
+            Tank.body.angle = Tank.body.angle - dt * math.pi/2
+            Tank.body.angle = Tank.body.angle % (2*math.pi)
+        end
+    end
+    if love.keyboard.isDown("w") then
+        Tank.move(-1,dt)
+    end
+    if love.keyboard.isDown("s") then
+        Tank.move(1,dt)
+    end
+    if love.keyboard.isDown("q") then
+        Tank.head.angle = Tank.head.angle - dt * math.pi/2
+        Tank.head.angle = Tank.head.angle % (2*math.pi)
+    end
+    if love.keyboard.isDown("e") then
+        Tank.head.angle = Tank.head.angle + dt * math.pi/2
+        Tank.head.angle = Tank.head.angle % (2*math.pi)
+    end
+end
+
+function checkHit()
+    for i,v in pairs(Tank.bullets) do
+        if v.y>=50 and v.y<=60 then
+            if v.x>=Target.normal[1] and v.x<=Target.normal[3] then
+                Target.normal[1]=0      
+                Target.normal[2]=0
+                Target.normal[3]=0
+                Target.normal[4]=0
+                Target.normal[5]=0
+                Target.normal[6]=0
+                Target.normal[7]=0
+                Target.normal[8]=0
+                hitFlag=true
+            end
+        end
+    end
+end
+
+function love.keyreleased(key)
+   if key == "j" then
+        Tank.makeFire()
+   -- elseif key == "k" then
+   --      Tank.bulletsCount=Tank.maxbs
+    elseif key=="r" then 
+        Target.normal={
+            50,50,
+            100,50,
+            100,60,
+            50,60
+        }
+        hitFlag=false
+    end
+end
+
+function love.update(dt)
+    Tank.run(dt)
+    keyboardLinstener(dt)
+
+    if hitFlag~=true then
+        Target.normal[1]=Target.normal[1]+speed*dt;
+        Target.normal[3]=Target.normal[3]+speed*dt;
+        Target.normal[5]=Target.normal[5]+speed*dt;
+        Target.normal[7]=Target.normal[7]+speed*dt;
+        if Target.normal[1]>love.graphics.getWidth() then
+         Target.normal[1]=50
+         Target.normal[3]=100
+         Target.normal[5]=100
+         Target.normal[7]=50
+        end
     end
 end

@@ -9,9 +9,9 @@
 	炮弹半径（边数定为10成圆形)
 	炮弹个数
 --]]
-HC = require 'HC'
 Tank = {}
 
+Tank.tickCount = 0
 Tank.body={}
 Tank.body.x=250
 Tank.body.y=250
@@ -34,21 +34,21 @@ Tank.fire.w=5	--炮管宽度
 Tank.fire.h=40	--炮管长度
 Tank.fire.x=Tank.center.x-Tank.fire.w/2
 Tank.fire.y=Tank.center.y-Tank.fire.h-math.cos(math.pi/6)*Tank.head.radius
+Tank.fire.cd=0
 Tank.speed=50	--坦克移动速度
-Tank.bulletsCount=10000	--坦克子弹个数
-Tank.maxbs=10000	--最大子弹个数
+Tank.bulletsCount=5	--坦克子弹个数
 Tank.maxshoot=500
 Tank.bulletSize=4
 
  --head.radius:head.edges:坦克脑袋边数
 
 Tank.bullets={}	--The table that contains all bullets.
+Tank.booms={}
 
 function Tank.draw()
 	
 	--Sets the color to red and draws the "bullets".
 	love.graphics.setColor(255, 255, 255)
-	
 	--画坦克躯干
 	love.graphics.origin()
 	rotateGraph(Tank.center.x,Tank.center.y,Tank.body.angle);
@@ -65,8 +65,20 @@ function Tank.draw()
 		love.graphics.origin()
 		-- rotateBuilet(v.angle)
 		rotateGraph(v.cx,v.cy,v.angle)
-		love.graphics.circle("line", v.x, v.y,Tank.bulletSize,10)
+		love.graphics.circle("fill", v.x, v.y,Tank.bulletSize)
 	end
+
+	--画子弹
+	
+	for i,v in pairs(Tank.booms) do
+		love.graphics.origin()
+		rotateGraph(v.cx,v.cy,v.angle)
+		love.graphics.circle("line", v.x,v.y,v.r)
+	end
+
+	love.graphics.origin()
+	love.graphics.print(os.clock(),200,240)
+	love.graphics.print(Tank.bulletsCount,200,220)
 end
 
 function Tank.move(dir,dt)
@@ -81,15 +93,54 @@ function Tank.move(dir,dt)
 end
 
 function Tank.makeFire()
-	
 	local targetX = Tank.fire.x+Tank.fire.w/2 
 	local targetY = Tank.fire.y
-	  
 	--Creates a new bullet and appends it to the table we created earlier.
-	if(Tank.bulletsCount>0) then
-		newbullet={x=targetX,y=targetY,angle=Tank.head.angle,cx=Tank.center.x,cy=Tank.center.y}
-		table.insert(Tank.bullets,newbullet)
+	if Tank.bulletsCount>0 then
+		newBullet={x=targetX,y=targetY,r=10,angle=Tank.head.angle,cx=Tank.center.x,cy=Tank.center.y}
+		table.insert(Tank.bullets,newBullet)
 		Tank.bulletsCount=Tank.bulletsCount-1
+		Tank.tickCount = os.clock()
+	end
+
+
+end
+
+function Tank.run(dt)
+	-- 限制子弹发射的频率，如果想要一个子弹一个子弹的限制
+	-- 可以将bulletsCount设置为1，并通过另外一个变量来控制子弹总量
+	if os.clock() - Tank.tickCount >= 0.3 and Tank.bulletsCount < 5 then
+		Tank.tickCount = os.clock()
+		Tank.bulletsCount = Tank.bulletsCount + 1
+	end
+
+	--以下这段代码决定了射程
+	for i,v in pairs(Tank.bullets) do
+        local shootAngle=math.atan2((Tank.fire.y - Tank.center.y), (Tank.fire.x+Tank.fire.w/2 - Tank.center.x))
+        local Dx = speed* math.cos(shootAngle)      --Physics: deltaX is the change in the x direction.
+        local Dy = speed* math.sin(shootAngle)
+        v.x = v.x + (Dx * dt)
+        v.y = v.y + (Dy * dt)
+        local length=math.sqrt((v.y-v.cy)^2+(v.x-v.cx)^2)
+        if length>Tank.maxshoot then
+        	table.remove(Tank.bullets,i)
+        	newBoom={x=v.x,y=v.y,r=v.r,angle=v.angle,cx=v.cx,cy=v.cy}
+			table.insert(Tank.booms,newBoom)
+    	end
+    end
+
+    checkHit()
+    Tank.boom(dt)
+end
+
+function Tank.boom(dt)
+	for i,v in pairs(Tank.booms) do
+		v.r = v.r + dt*10
+		if v.r >= 20 then
+			table.remove(Tank.booms,i)
+		end
 	end
 end
+
+
 return Tank
